@@ -23,27 +23,12 @@ from sklearn.metrics import (
 )
 
 
-def return_metrics(training=True):
-    return roc_auc_score(
-        df["fraud"], df[f"model_{model_no}_score"])
-
-    average_precision_score(
-        df["fraud"], df[f"model_{model_no}_score"]
-    )
-
-    auroc_curves[] = roc_curve(
-        df["fraud"], df[f"model_{model_no}_score"]
-    )
-
-    auprc_curves[] = precision_recall_curve(
-        df["fraud"], df[f"model_{model_no}_score"]
-    )
-
-    briers[] = brier_score_loss(
-        df["fraud"], df[f"model_{model_no}_score"]
-    )
-
-    return auroc_curves, auprc_curves, aurocs, auprcs, briers
+def return_metrics(score_array, true_array):
+    return {
+        "roc_auc_score": roc_auc_score(true_array, score_array),
+        "average_precision_score": average_precision_score(true_array, score_array),
+        "brier_score": brier_score_loss(true_array, score_array),
+    }
 
 
 def return_cutoff_matrix(score_array, true_array):
