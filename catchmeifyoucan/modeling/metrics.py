@@ -23,7 +23,8 @@ from sklearn.metrics import (
 )
 
 
-def return_metrics(score_array, true_array):
+def return_metrics(score_array,
+                   true_array):
     return {
         "roc_auc_score": roc_auc_score(true_array, score_array),
         "average_precision_score": average_precision_score(true_array, score_array),

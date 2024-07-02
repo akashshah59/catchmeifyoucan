@@ -109,7 +109,7 @@ class ForestBased(AnomalyModel):
         
         n_estimators = trial.suggest_int('n_estimators', 50, 200)
         max_samples = trial.suggest_float('max_samples', 0.1, 1.0)
-        contamination = trial.suggest_float('contamination', 0.01, 0.5)
+        contamination = trial.suggest_float('contamlsination', 0.01, 0.5)
         max_features = trial.suggest_float('max_features', 0.1, 1.0)
         
         # Create and train the model
