@@ -98,7 +98,7 @@ class ForestBased(AnomalyModel):
         if self.y.is_empty():
             study = optuna.create_study(direction='maximize')
             study.optimize(self.objective, 
-                        n_trials=50)
+                        n_trials=50) # Default 50 trials.
             trial = study.best_trial
 
         return trial.params 
@@ -109,7 +109,7 @@ class ForestBased(AnomalyModel):
         
         n_estimators = trial.suggest_int('n_estimators', 50, 200)
         max_samples = trial.suggest_float('max_samples', 0.1, 1.0)
-        contamination = trial.suggest_float('contamlsination', 0.01, 0.5)
+        contamination = trial.suggest_float('contamination', 0.01, 0.5)
         max_features = trial.suggest_float('max_features', 0.1, 1.0)
         
         # Create and train the model
@@ -120,10 +120,10 @@ class ForestBased(AnomalyModel):
             max_features=max_features,
             random_state=42
         )
-        model.fit(self.train_x)
+        model.fit(train_x) # y is not supposed to be there. 
         
         # Predict and evaluate
-        y_pred = model.predict(self.val_x)
+        y_pred = model.predict(val_x)
         y_pred = np.where(y_pred == -1, 0, 1) # Convert -1 to 1.
         score = roc_auc_score(val_y, y_pred)
     

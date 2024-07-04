@@ -17,8 +17,6 @@ from sklearn.metrics import (
     confusion_matrix,
     roc_auc_score,
     average_precision_score,
-    precision_recall_curve,
-    roc_curve,
     brier_score_loss,
 )
 

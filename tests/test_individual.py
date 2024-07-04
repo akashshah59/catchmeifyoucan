@@ -1,10 +1,13 @@
 import pytest
 import polars as pl
+import pandas as pd
 import numpy as np
+from sklearn.linear_model import LogisticRegressionCV
+from sklearn.model_selection import train_test_split
 
 from catchmeifyoucan.config import RAW_DATA_DIR
+from catchmeifyoucan.modeling.metrics import return_cutoff_matrix, return_metrics
 from catchmeifyoucan.modeling.unsupervised.anomaly import ForestBased
-
 
 @pytest.fixture
 def fetch_ecommerce_dataset():
@@ -29,7 +32,8 @@ def fetch_ecommerce_dataset():
         time_transformed_df.drop("class").to_pandas(),
         time_transformed_df["class"].to_pandas(),
     )
-    return (x, y)
+    train_x, test_x, train_y , test_y = train_test_split(x,y)
+    return (train_x, train_y, test_x, train_y )
 
 
 def test_forest_based_no_y():
@@ -38,10 +42,22 @@ def test_forest_based_no_y():
 
 def test_forest_based_with_y(fetch_ecommerce_dataset):
     model = ForestBased()
-    x, y = fetch_ecommerce_dataset
+    train_x, test_x, train_y , test_y = fetch_ecommerce_dataset
 
-    model.fit(X=x, y=y)
-    preds = model.predict(x)
+    model.fit(X=train_x, y=train_y)
+    preds = model.predict(test_x)
 
     assert np.max(preds) == 1. and np.min(preds) == -1.
-    assert x.shape[0] == len(preds)
+    assert test_x.shape[0] == len(preds)
+
+def test_metrics(fetch_ecommerce_dataset):
+    lr = LogisticRegressionCV()
+    train_x,test_x, train_y, test_y = fetch_ecommerce_dataset
+    lr.fit(X = train_x, y = train_y)
+    
+    preds = lr.predict_proba(test_x,)
+    
+    metrics, cutoff_matrix = return_metrics(preds,test_y), return_cutoff_matrix(preds,test_y)
+    
+    assert  "roc_auc_score" in metrics.keys() and "briers_score" in metrics.keys() and "brier_score" in metrics.keys()
+    assert isinstance(cutoff_matrix,pd.DataFrame)

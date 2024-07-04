@@ -4,7 +4,11 @@
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
 </a>
 
-Fraud detection made simple.
+<u> Fraud detection made quicker. </u>
+
+- This package aims to intergrate antifraud machine learning research, and use the power of deep learning as well as traditional machine learning and statistics to find bad actors.
+- It focusses on making anomaly detection abstract and accessible, so that businesses can eventually use the power of machine learning without having to wait months for a data scientists to build the internals. 
+- The goals is to be able to pip install this package, and call find_bad_actors()
 
 ## Project Organization
 
