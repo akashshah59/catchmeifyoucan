@@ -21,8 +21,7 @@ from sklearn.metrics import (
 )
 
 
-def return_metrics(score_array,
-                   true_array):
+def return_metrics(score_array, true_array):
     return {
         "roc_auc_score": roc_auc_score(true_array, score_array),
         "average_precision_score": average_precision_score(true_array, score_array),
@@ -31,10 +30,9 @@ def return_metrics(score_array,
 
 
 def return_cutoff_matrix(score_array, true_array):
-    assert (np.dtype(score_array) == np.array) & (np.dtype(true_array) == np.array)
-
-    precisions, recalls, f1_scores, percentiles, tps, tns, fns, fps = ([],) * 8
-
+    precisions, recalls, f1_scores, percentiles, tps, tns, fns, fps = (
+        [] for i in range(8)
+    )
     for cutoffs in np.linspace(0, 100, 21):
         # 20 cutoffs taken only for interpretability.
         predictions = (score_array >= np.percentile(score_array, cutoffs)).astype(int)

@@ -2,6 +2,7 @@ import pytest
 import polars as pl
 import pandas as pd
 import numpy as np
+from pprint import pprint
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.model_selection import train_test_split
 
@@ -27,13 +28,16 @@ def fetch_ecommerce_dataset():
         df["purchase_time"].str.to_datetime().dt.day().alias("purchase_day"),
     ).drop(["signup_time", "purchase_time"])
 
-    y = df["class"]
+    y = time_transformed_df["class"].to_numpy()
     x = enc.fit_transform(
-        time_transformed_df.drop("class").to_pandas(),
-        time_transformed_df["class"].to_pandas(),
+        time_transformed_df.drop("class").to_numpy(),
+        time_transformed_df["class"].to_numpy(),
     )
-    train_x, test_x, train_y , test_y = train_test_split(x,y)
-    return (train_x, train_y, test_x, train_y )
+
+    train_x, test_x, train_y , test_y = train_test_split(x,y,
+                                                            shuffle= True,
+                                                            random_state=42)
+    return train_x, test_x, train_y, test_y
 
 
 def test_forest_based_no_y():
@@ -41,23 +45,28 @@ def test_forest_based_no_y():
 
 
 def test_forest_based_with_y(fetch_ecommerce_dataset):
-    model = ForestBased()
     train_x, test_x, train_y , test_y = fetch_ecommerce_dataset
-
+    
+    model = ForestBased()
     model.fit(X=train_x, y=train_y)
-    preds = model.predict(test_x)
+    preds = model.predict(test_x).ravel()
 
     assert np.max(preds) == 1. and np.min(preds) == -1.
     assert test_x.shape[0] == len(preds)
 
+
 def test_metrics(fetch_ecommerce_dataset):
     lr = LogisticRegressionCV()
     train_x,test_x, train_y, test_y = fetch_ecommerce_dataset
+
     lr.fit(X = train_x, y = train_y)
     
-    preds = lr.predict_proba(test_x,)
+    preds = lr.predict_proba(test_x)[:,1]
     
-    metrics, cutoff_matrix = return_metrics(preds,test_y), return_cutoff_matrix(preds,test_y)
+    basic_metrics = return_metrics(preds, test_y)
+    cutoff_matrix = return_cutoff_matrix(preds, test_y)
     
-    assert  "roc_auc_score" in metrics.keys() and "briers_score" in metrics.keys() and "brier_score" in metrics.keys()
-    assert isinstance(cutoff_matrix,pd.DataFrame)
+    assert all([metric in basic_metrics.keys() for metric in ["roc_auc_score", 
+                                                                "brier_score",
+                                                                    "average_precision_score"]])
+    assert isinstance(cutoff_matrix,  pd.DataFrame)
