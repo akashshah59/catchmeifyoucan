@@ -2,13 +2,13 @@ import pytest
 import polars as pl
 import pandas as pd
 import numpy as np
-from pprint import pprint
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.model_selection import train_test_split
+from torch.nn import Module
 
 from catchmeifyoucan.config import RAW_DATA_DIR
 from catchmeifyoucan.modeling.metrics import return_cutoff_matrix, return_metrics
-from catchmeifyoucan.modeling.unsupervised.anomaly import ForestBased
+from catchmeifyoucan.modeling.unsupervised.anomaly import ForestBased, AutoEncoderBased
 
 @pytest.fixture
 def fetch_ecommerce_dataset():
@@ -54,6 +54,14 @@ def test_forest_based_with_y(fetch_ecommerce_dataset):
     assert np.max(preds) == 1. and np.min(preds) == -1.
     assert test_x.shape[0] == len(preds)
 
+def test_autoencoder_train(fetch_ecommerce_dataset):
+    train_x, _,_,_ = fetch_ecommerce_dataset
+    
+    model = AutoEncoderBased()
+    model.fit(X=train_x)
+
+    assert isinstance(model, Module)
+
 
 def test_metrics(fetch_ecommerce_dataset):
     lr = LogisticRegressionCV()
@@ -68,5 +76,5 @@ def test_metrics(fetch_ecommerce_dataset):
     
     assert all([metric in basic_metrics.keys() for metric in ["roc_auc_score", 
                                                                 "brier_score",
-                                                                    "average_precision_score"]])
+                                                                "average_precision_score"]])
     assert isinstance(cutoff_matrix,  pd.DataFrame)

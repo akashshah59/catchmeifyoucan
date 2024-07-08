@@ -1,24 +1,32 @@
 import numpy as np
 
+from typing_extensions import override
+
 from sklearn.ensemble import IsolationForest
 from sklearn.svm import OneClassSVM
 from sklearn.neighbors import LocalOutlierFactor
 from torch.nn import Sequential, ReLU, Linear
+from torch import utils
+import lightning as L
+from deep_detection import AutoEncoder
 
 from sklearn.metrics import roc_auc_score
 
 import optuna
 
 from sklearn.model_selection import train_test_split
-#from deep_detection import AutoEncoder
+from deep_detection import AutoEncoder
 
 model_map = {
             "ForestBased": IsolationForest,
              "SVMBased": OneClassSVM,
-             "NearestNeigborBased": LocalOutlierFactor,}
-            # "AutoEncoderBased": AutoEncoder }
+             "NearestNeigborBased": LocalOutlierFactor,
+             "AutoEncoderBased": AutoEncoder }
 
 class AnomalyModel():
+    """
+    This M
+    """
     def __init__(self, type: str = 'ForestBased') -> None:
         self.type = type
         self.X = None
@@ -46,20 +54,47 @@ class NearestNeighborBased(AnomalyModel):
 class AutoEncoderBased(AnomalyModel):
     def __init__(self) -> None:
         super().__init__()
-        
+        self.trainer = L.Trainer(limit_train_batches=100, 
+                                 max_epochs=1)
+        self.loader = None
+    
+    @override
     def fit(self, X):
-        self.X = X
         self._optimize()
 
-        encoder = Sequential(Linear(28 * 28, 64), ReLU(), Linear(64, 3))
-        decoder = Sequential(Linear(3, 64), ReLU(), Linear(64, 28 * 28))
+        encoder = Sequential(Linear(28 * 28, 64), 
+                                    ReLU(), 
+                                        Linear(64, 3))
+        
+        decoder = Sequential(Linear(3, 64), 
+                                ReLU(), 
+                                    Linear(64, 28 * 28))
+        
+        self.loader = utils.data.DataLoader(X)
 
-        self.fit(self.X) 
+        if self.y is None:
+            self.model = model_map[self.type](encoder=encoder, 
+                                            decoder= decoder)
+        else:
+            self.model = model_map[self.type](encoder = encoder,
+                                              decoder = decoder)
+
+        
+        self.trainer.fit(model=self.model, 
+                    train_dataloaders= self.loader)
+
+        return self.model
 
     def predict(self):
+        
         pass 
 
     def _optimize():
+        """
+        Optimization will be tricky for this loop. 
+        Read up some of the optimization strategies based on how the model performs.
+        """
+
         pass
 
 class SVMBased(AnomalyModel):

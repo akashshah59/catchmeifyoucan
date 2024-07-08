@@ -8,6 +8,7 @@ from torchvision.transforms import ToTensor
 class AutoEncoder(L.LightningModule):
     def __init__(self, encoder, decoder):
         super().__init__()
+
         self.encoder = encoder
         self.decoder = decoder
 

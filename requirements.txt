@@ -12,6 +12,7 @@ pandas
 pip
 python-dotenv
 scikit-learn
+lightning
 tqdm
 torch
 typer
