@@ -1,9 +1,6 @@
 import lightning as L 
 
-from torch import optim, nn, utils, Tensor
-from torchvision.datasets import MNIST
-from torchvision.transforms import ToTensor
-
+from torch import optim, nn
 
 class AutoEncoder(L.LightningModule):
     def __init__(self, encoder, decoder):

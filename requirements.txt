@@ -16,4 +16,8 @@ lightning
 tqdm
 torch
 typer
+polars
+pytest
+optuna
+category-encoders
 -e .

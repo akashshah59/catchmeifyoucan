@@ -58,9 +58,9 @@ def test_autoencoder_train(fetch_ecommerce_dataset):
     train_x, _,_,_ = fetch_ecommerce_dataset
     
     model = AutoEncoderBased()
-    model.fit(X=train_x)
+    trained_model = model.fit(X = train_x.to_numpy().astype(np.float32))
 
-    assert isinstance(model, Module)
+    assert isinstance(trained_model, Module)
 
 
 def test_metrics(fetch_ecommerce_dataset):
