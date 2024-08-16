@@ -15,7 +15,7 @@ from sklearn.metrics import roc_auc_score
 import optuna
 
 from sklearn.model_selection import train_test_split
-from .deep_detection import AutoEncoder
+
 
 model_map = { "ForestBased": IsolationForest,
              "SVMBased": OneClassSVM,
